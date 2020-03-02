@@ -2,18 +2,20 @@
 
 Some bash tools for Kubernetes users
 
+## Installation
+
+Add this in your `.bashrc` or `~/.zshrc` file :
+
+```
+source ~/DEV/ktools/ktools.sh
+```
+
 ## Usage
 
 * `kctx` shows existing contexts
 * `kctx [ CONTEXT ]` : selects given context
 * `kns` : shows existing namespaces
 * `kns [ NAMESPACE ]` : selects given namespaces
-
-eg.
-
-```
-
-```
 
 Some aliases are also defined :
 
