@@ -102,6 +102,52 @@ if [ $2 ]; then
 fi
 }
 
+
+function knfs {
+if [ $1 ]; then
+  NFS_SERVER=netapp01-data.vitry.exploit.anticorp
+  CURRENT_NS=$(kubectl config get-contexts --no-headers | grep '*' | awk '{print $5}')
+  kubectl delete -n test pod nfs
+  cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nfs
+  namespace: test
+spec:
+  restartPolicy: Never
+  containers:
+  - name: main
+    image: debian
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "while true; do sleep 30; done;" ]
+    securityContext:
+      runAsUser: 0
+    resources:
+      requests:
+        cpu: 2
+        memory: 4Gi
+      limits:
+        cpu: 2
+        memory: 10Gi
+    volumeMounts:
+      - name: nfs-mount
+        mountPath: "/nfs"
+  volumes:
+  - name: nfs-mount
+    nfs:
+      server: $NFS_SERVER
+      path: /vol/$1
+EOF
+  echo test/nfs pod is ready. 
+  echo run '>' kubectl exec -it -n test nfs bash
+
+else
+  kubectl get pv -o yaml | perl -ne '$\=$/;print $1 if m,path: /vol/(.*)/,' | sort
+fi
+
+}
+
 function klogs {
 # Logs a pod of the given type in the current context / namespace.
 TYPE=$1;
