@@ -1,7 +1,4 @@
-# Base file of this file (works with bash and zsh)
-# tsh user should replace $0 with $_ (untested)
-export KTBASE="$(cd "$(dirname "$0")" && pwd)"
-# (not used for now)
+#!/bin/bash
 
 alias k="kubectl"
 alias kc="kubectl config"
@@ -10,8 +7,10 @@ alias kg="kubectl get"
 alias kgp="kubectl get pods --watch"
 alias kd="kubectl delete"
 alias kdf="kubectl delete --grace-period=0 --force"
+
 function kdp {
-  for p in $(kubectl get pods | grep Terminating | awk '{print $1}'); do kubectl delete pod $p --grace-period=0 --force;done
+  PODS=$(kubectl get pods | grep Terminating | awk '{print $1}')
+  for p in $PODS; do kubectl delete pod $p --grace-period=0 --force;done
 }
 
 function kns {
@@ -23,7 +22,7 @@ function kns {
 if [ $1 ]; then
   NAMESPACE=$1
 else
-  name=`basename "$0"`
+  name=`basename "$BASH_SOURCE"`
   echo "Usage: $name NAMESPACE"
   kubectl get namespaces
   return;
@@ -71,7 +70,7 @@ function kctx {
 if [ $1 ]; then
   CONTEXT=$1
 else
-  name=`basename "$0"`
+  name=`basename "$BASH_SOURCE"`
   echo "Usage: $name CONTEXT [NAMESPACE]"
   # Petit script perl rigolo qui trie les contextes par nom de CLUSTER, puis LOGIN, puis NAMESPACE
   kubectl config get-contexts | perl -e 'sub K{@_[0]=~/\W+\w\S+\s+/;$'"'"'}sub oncol{K($a) cmp K($b)}print"".<>;print sort oncol($_),<>'
@@ -154,7 +153,7 @@ TYPE=$1;
 CONTAINER=$2
 
 if ! [ "$TYPE" ]; then
-  name=`basename "$0"`
+  name=`basename "$BASH_SOURCE"`
   echo "Usage: $name POD_TYPE [CONTAINER]";
   return;
 fi
@@ -187,7 +186,7 @@ TYPE=$1;
 CONTAINER=$2
 
 if ! [ "$TYPE" ]; then
-  name=`basename "$0"`
+  name=`basename "$BASH_SOURCE"`
   echo "Usage: $name POD_TYPE [CONTAINER]";
   return;
 fi
